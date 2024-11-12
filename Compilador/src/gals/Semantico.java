@@ -33,15 +33,53 @@ public class Semantico implements Constants {
             case 102:
                 acao102(token);
                 break;
+            case 108:
+                acao108(token);
+                break;
+            case 118:
+                acao118();
+                break;
+            case 119:
+                acao119();
+                break;
+            case 127:
+                acao127(token);
+                break;
+            case 128:
+                acao128(token);
+                break;
+            case 129:
+                acao129(token);
+                break;
+            case 130:
+                acao130(token);
+                break;
             default:
                 break;
         }
     }
 
+   private String getTipo(String id) {
+       String prefixo = id.split("_")[0];
+       String tipo = "";
+       switch (prefixo) {
+           case "i":
+               return "int64";
+           case "f":
+               return "float64";
+           case "s":
+               return "string";
+           case "b":
+               return "bool";
+           default:
+               return "";
+       }
+   }
+
     // Cabeçalho
     private void acao100() {
         codigoObjeto.adicionar(
-                "assembly extern mscorlib {}\n" +
+                ".assembly extern mscorlib {}\n" +
                         ".assembly _codigo_objeto{}\n" +
                         ".module _codigo_objeto.exe\n" +
                         ".class public UNICA{\n" +
@@ -63,43 +101,96 @@ public class Semantico implements Constants {
         }
         tabelaSimbolos.add(id);
 
-        String prefixo = id.split("_")[0];
-        String tipo = "";
-        switch (prefixo) {
-            case "i":
-                tipo = "int64";
-                break;
-            case "f":
-                tipo = "float64";
-                break;
-            case "s":
-                tipo = "string";
-                break;
-            case "b":
-                tipo = "bool";
-                break;
-            default:
-                break;
-        }
-        codigoObjeto.adicionar(".locals (" + tipo + " "+ id + ")");
+        codigoObjeto.adicionar(".locals (" + getTipo(id)+ " " + id + ")");
+        listaIdentificadores.clear();
     }
 
-    private void acao103() {}
+    private void acao103() {
+    }
 
-    private void acao104() {}
+    private void acao104() {
+    }
 
-    private void acao105() {}
+    private void acao105() {
+    }
 
-    private void acao106() {}
+    private void acao106() {
+    }
 
-    private void acao107() {}
+    private void acao107() {
+    }
 
     // Comando de saída
-    private void acao108() {
+    private void acao108(Token token) {
+        int tokenId = token.getId();
+        String tipo = pilhaTipos.pop();
 
+        switch (tokenId) {
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                codigoObjeto.adicionar("ldc.i4.");
+                if (token.getLexeme().equals("true")) {
+                    codigoObjeto.adicionar("1");
+                } else {
+                    codigoObjeto.adicionar("0");
+                }
+
+        }
+
+
+        if (tipo.equals("int64")) {
+            codigoObjeto.adicionar("conv.i8\n");
+        }
+
+        codigoObjeto.adicionar("call void\n [mscorlib]System.Console::Write(" + tipo + ")\n");
     }
 
+    private void acao118(){
+        codigoObjeto.adicionar("ldc.i4.1");
+        pilhaTipos.add("bool");
+    }
 
+    private void acao119(){
+        codigoObjeto.adicionar("ldc.i4.0");
+        pilhaTipos.add("bool");
+    }
+
+    private void acao127(Token token) throws SemanticError{
+        String id = token.getLexeme();
+        if (!tabelaSimbolos.contains(id)) {
+            throw new SemanticError(id + " não declarado", token.getPosition());
+        }
+        String tipo = getTipo(id) ;
+        pilhaTipos.add(tipo);
+        codigoObjeto.adicionar("ldloc " +token.getLexeme());
+
+        if (tipo.equals("int64")) {
+            codigoObjeto.adicionar("conv.r8\n");
+        }
+    }
+
+    private void acao128(Token token){
+        codigoObjeto.adicionar("ldc.i8 " + token.getLexeme());
+
+        pilhaTipos.add("int64");
+    }
+
+    private void acao129(Token token){
+        codigoObjeto.adicionar("ldc.r8" + token.getLexeme().replace(",", "."));
+        pilhaTipos.add("float64");
+    }
+
+    private void acao130(Token token){
+        codigoObjeto.adicionar("ldstr " + token.getLexeme());
+        pilhaTipos.add("string");
+    }
 
 
 }
