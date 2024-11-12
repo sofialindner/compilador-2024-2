@@ -33,6 +33,9 @@ public class Semantico implements Constants {
             case 102:
                 acao102(token);
                 break;
+            case 107:
+                acao107();
+                break;
             case 108:
                 acao108(token);
                 break;
@@ -117,39 +120,20 @@ public class Semantico implements Constants {
     private void acao106() {
     }
 
+    // Writeln
     private void acao107() {
+        codigoObjeto.adicionar("ldstr \" \"\ncall void\n [mscorlib]System.Console::WriteLine(string)");
     }
 
-    // Comando de saída
+    // Write
     private void acao108(Token token) {
-        int tokenId = token.getId();
         String tipo = pilhaTipos.pop();
-
-        switch (tokenId) {
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
-                break;
-            case 7:
-                codigoObjeto.adicionar("ldc.i4.");
-                if (token.getLexeme().equals("true")) {
-                    codigoObjeto.adicionar("1");
-                } else {
-                    codigoObjeto.adicionar("0");
-                }
-
-        }
-
 
         if (tipo.equals("int64")) {
             codigoObjeto.adicionar("conv.i8\n");
         }
 
-        codigoObjeto.adicionar("call void\n [mscorlib]System.Console::Write(" + tipo + ")\n");
+        codigoObjeto.adicionar("call void\n [mscorlib]System.Console::Write(" + tipo + ")");
     }
 
     private void acao118(){
