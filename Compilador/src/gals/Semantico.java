@@ -39,6 +39,12 @@ public class Semantico implements Constants {
             case 104:
                 acao104(token);
                 break;
+            case 105:
+                acao105(token);
+                break;
+            case 106:
+                acao106(token);
+                break;
             case 107:
                 acao107();
                 break;
@@ -147,10 +153,37 @@ public class Semantico implements Constants {
         listaIdentificadores.add(idToken);
     }
 
-    private void acao105() {
+    // Read
+    private void acao105(Token token) throws SemanticError {
+        String id = token.getLexeme();
+        if (!tabelaSimbolos.contains(id)) {
+            throw new SemanticError(id + " não declarado", token.getPosition());
+        }
+
+        String tipo = getTipo(id);
+        codigoObjeto.adicionar("call string\n [mscorlib]System.Console::ReadLine()");
+
+        if (!tipo.equals("string")) {
+            String classe = "";
+            switch (tipo) {
+                case "int64":
+                    classe = "Int64";
+                    break;
+                case "float64":
+                    classe = "Double";
+                    break;
+                case "bool":
+                    classe = "Boolean";
+                    break;
+            }
+            codigoObjeto.adicionar("call " + tipo + "\n [mscorlib]System." + classe + "::Parse(string)");
+        }
+        codigoObjeto.adicionar("stloc " + id);
     }
 
-    private void acao106() {
+    private void acao106(Token token) {
+        codigoObjeto.adicionar("ldstr " + token.getLexeme());
+        codigoObjeto.adicionar("call void\n [mscorlib]System.Console::WriteLine(string)");
     }
 
     // Writeln
