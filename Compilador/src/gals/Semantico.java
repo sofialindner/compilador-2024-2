@@ -7,7 +7,7 @@ public class Semantico implements Constants {
     private CodigoObjeto codigoObjeto;
     private Stack<String> pilhaTipos;
     private Stack<String> pilhaRotulos;
-    private ArrayList<String> listaIdentificadores;
+    private ArrayList<Token> listaIdentificadores;
     private ArrayList<String> tabelaSimbolos;
 
     public Semantico() {
@@ -31,7 +31,13 @@ public class Semantico implements Constants {
                 acao101();
                 break;
             case 102:
-                acao102(token);
+                acao102();
+                break;
+            case 103:
+                acao103(token);
+                break;
+            case 104:
+                acao104(token);
                 break;
             case 107:
                 acao107();
@@ -64,7 +70,6 @@ public class Semantico implements Constants {
 
    private String getTipo(String id) {
        String prefixo = id.split("_")[0];
-       String tipo = "";
        switch (prefixo) {
            case "i":
                return "int64";
@@ -97,21 +102,49 @@ public class Semantico implements Constants {
                 "}");
     }
 
-    private void acao102(Token idToken) throws SemanticError {
-        String id = idToken.getLexeme();
-        if (tabelaSimbolos.contains(id)) {
-            throw new SemanticError(id + " já declarado", idToken.getPosition());
-        }
-        tabelaSimbolos.add(id);
+    private void acao102() throws SemanticError {
+        for (int i = 0; i < listaIdentificadores.size(); i++) {
+            Token id = listaIdentificadores.get(i);
+            String idLexeme = id.getLexeme();
 
-        codigoObjeto.adicionar(".locals (" + getTipo(id)+ " " + id + ")");
+            if (tabelaSimbolos.contains(idLexeme)) {
+                throw new SemanticError(idLexeme + " já declarado", id.getPosition());
+            }
+            tabelaSimbolos.add(idLexeme);
+
+            codigoObjeto.adicionar(".locals (" + getTipo(idLexeme)+ " " + idLexeme + ")");
+        }
         listaIdentificadores.clear();
     }
 
-    private void acao103() {
+    // Atribuição
+    private void acao103(Token token) throws SemanticError {
+        String tipo = pilhaTipos.pop();
+        if (tipo.equals("int64")) {
+            codigoObjeto.adicionar("conv.i8");
+        }
+
+        // Duplica valor da expressão para que todos os identificadores o atribuam
+        for (int i = 0; i < listaIdentificadores.size() - 1; i++) {
+            codigoObjeto.adicionar("dup");
+        }
+
+        // Verifica se identificadores foram declarados
+        for (int i = 0; i < listaIdentificadores.size(); i++) {
+            String id = listaIdentificadores.get(i).getLexeme();
+
+            if (tabelaSimbolos.contains(id)) {
+                codigoObjeto.adicionar("stloc " + id);
+            } else {
+                throw new SemanticError(id + " não declarado", token.getPosition());
+            }
+        }
+        listaIdentificadores.clear();
     }
 
-    private void acao104() {
+    // Adiciona à lista de identificadores em sequência
+    private void acao104(Token idToken) {
+        listaIdentificadores.add(idToken);
     }
 
     private void acao105() {
