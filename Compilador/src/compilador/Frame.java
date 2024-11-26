@@ -521,7 +521,7 @@ public class Frame extends javax.swing.JFrame {
                     + e.getMessage().indent(18);
 
         } catch (SemanticError e) {
-            return "Erro na linha " + getLinha(e.getPosition()) + e.getMessage().indent(18);
+            return "Erro na linha " + getLinha(e.getPosition()) + " - " + e.getMessage();
 
             /* Uso de finally permite que a lista de tokens seja impressa mesmo em caso de exceções,
             * de modo a auxiliar no debugging do algoritmo */
@@ -548,6 +548,8 @@ public class Frame extends javax.swing.JFrame {
                 compilarBtnActionPerformed(evt);
             }
         } else {
+            salvarArquivo();
+
             // Reinicializa listas de linhas e tokens para uma nova análise
             linhas = new ArrayList<>();
             tokens = new ArrayList<>();

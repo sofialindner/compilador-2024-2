@@ -273,7 +273,7 @@ public class Semantico implements Constants {
         String tipo = pilhaTipos.pop();
 
         if (tipo.equals("int64")) {
-            codigoObjeto.adicionar("conv.i8\n");
+            codigoObjeto.adicionar("conv.i8");
         }
 
         codigoObjeto.adicionar("call void\n [mscorlib]System.Console::Write(" + tipo + ")");
@@ -418,7 +418,7 @@ public class Semantico implements Constants {
     }
 
     private void acao129(Token token) {
-        codigoObjeto.adicionar("ldc.r8" + token.getLexeme().replace(",", "."));
+        codigoObjeto.adicionar("ldc.r8 " + token.getLexeme().replace(",", "."));
         pilhaTipos.add("float64");
     }
 
@@ -431,6 +431,4 @@ public class Semantico implements Constants {
         codigoObjeto.adicionar("ldc.r8 -1.0");
         codigoObjeto.adicionar("mul");
     }
-
-
 }
